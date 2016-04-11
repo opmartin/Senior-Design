@@ -10,7 +10,7 @@
 #define toggleUp 22
 #define toggleDown 23
 
-#define motorSpeed 20
+#define motorSpeed 255
 #define stallSpeed 3
 
 int switchStateUp = 0;
@@ -36,17 +36,17 @@ void loop() {
   }
   else if (switchStateUp == HIGH) {
     Serial.println("UP");
-    digitalWrite(dir,LOW);
+    digitalWrite(dir,HIGH);
     analogWrite(pwm,motorSpeed);
   }
   else if (switchStateDown == HIGH) {
     Serial.println("DOWN");
-    digitalWrite(dir,HIGH);
+    digitalWrite(dir,LOW);
     analogWrite(pwm,motorSpeed);
   }
   else {
     Serial.println("NEUTRAL");
-    digitalWrite(dir,LOW);
+    digitalWrite(dir,HIGH);
     analogWrite(pwm,stallSpeed);
   }
 
