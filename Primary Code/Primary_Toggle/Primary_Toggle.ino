@@ -1,7 +1,13 @@
+/**
+ * Controls the motor using a toggle switch.
+*/
+
+
 //Constant Definitions
 #define highSpeed 255
 #define lowSpeed 255
-#define tolerance 100
+#define tolerance 50
+#define increment 200
 
 //Motor Definitions
 #define pwm 3
@@ -18,6 +24,11 @@
 #define toggleUp 22
 #define toggleDown 23
 
+enum ModeE {
+  incrementM,
+  smoothM
+} mode;
+
 int motorSpeed, currentDirection;
 int midPoint, currentPos, idealPos;
 
@@ -31,11 +42,47 @@ void setup() {
   idealPos = currentPos;
   motorSpeed = lowSpeed;
   currentDirection = up;
+  mode = smoothM;
 }
 
 void loop() {
   currentPos = readPot();
 
+  if( mode == smoothM) {
+    int toggleStatus = readToggle();
+    int limit = checkLimitSwitch();
+    if(limit == 0) {
+      digitalWrite(dir, currentDirection);
+      analogWrite(pwm, motorSpeed);
+    }
+  }
+  if( mode == incrementM) {
+    int preDirection = currentDirection;
+    int toggleStatus = readToggle();
+    if (preDirection != currentDirection)
+      idealPos = idealPos + toggleStatus*increment; //NOTE: this won't work because it adds every frame
+    adjustMotorInc();
+  }
+
+}
+
+/**
+ * Checks the toggle switch and adjusted currentDirection.
+ * Returns: 0 if the toggle switch is not pressed.
+ *          -1 if the toggle switch is pressed down.
+ *          1 if the toggle switch is pressed up.
+ */
+int readToggle() {
+  if(digitalRead(toggleUp == HIGH)) {
+    currentDirection = up;
+    return 1;
+  }
+  if(digitalRead(toggleDown == HIGH)) {
+    currentDirection = down;
+    return -1;
+  }
+  currentDirection = 0;
+  return 0;
 }
 
 /**
@@ -68,7 +115,7 @@ int readPotBi(){
  *          <0 if the limit switches are stopping movement 
  *             (check checkLimitSwitch for error codes)
  */
-int adjustMotor(){
+int adjustMotorInc(){
   if (abs(currentPos - idealPos) < tolerance) {
     analogWrite(pwm, 0);
     return 0;
@@ -103,11 +150,13 @@ int checkLimitSwitch() {
   if (digitalRead(limitHigh) == HIGH && currentDirection == up){
     analogWrite(pwm, 0);
     Serial.println("ERROR: Attempting to damage upper limit switch");
+    idealPos == currentPos;
     return -2;
   }
   if(digitalRead(limitLow) == HIGH && currentDirection == down){
     analogWrite(pwm, 0);
     Serial.println("ERROR: Attempting to damage lower limit switch");
+    idealPos == currentPos;
     return -1;
   }
   return 0;
