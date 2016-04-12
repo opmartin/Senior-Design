@@ -29,39 +29,46 @@ enum ModeE {
   smoothM
 } mode;
 
+int (*buttonFunctions[4]) ();
+
 int motorSpeed, currentDirection;
 int midPoint, currentPos, idealPos;
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(pwm,OUTPUT);
-  pinMode(dir,OUTPUT);
-  pinMode(limitHigh, INPUT);
-  pinMode(limitLow, INPUT);
-  currentPos = readPot();
-  idealPos = currentPos;
-  motorSpeed = lowSpeed;
-  currentDirection = up;
-  mode = smoothM;
+  Serial.begin(9600); //Opens Serial
+  pinMode(pwm,OUTPUT); //Sets motor pwm to output
+  pinMode(dir,OUTPUT); //sets direction pin to output
+  pinMode(limitHigh, INPUT); //Sets high limit switch pin
+  pinMode(limitLow, INPUT); //Sets low limit switch pin
+  currentPos = readPot(); //Sets current position
+  idealPos = currentPos; //Sets ideal position to current position
+  motorSpeed = lowSpeed; //Default is low speed
+  currentDirection = 0; //Current direction is 0
+  mode = smoothM; //Default mode is smooth
+
+  setButtons();
 }
 
 void loop() {
-  currentPos = readPot();
-
+  currentPos = readPot(); //Updates current position
+  printParameters();
   if( mode == smoothM) {
-    int toggleStatus = readToggle();
-    int limit = checkLimitSwitch();
+    int toggleStatus = readToggle(); //Checks toggle switch
+    if(toggleStatus == 0) {
+      return;
+    }
+    int limit = checkLimitSwitch(); //Checks if limit switch is contradicting
     if(limit == 0) {
-      digitalWrite(dir, currentDirection);
-      analogWrite(pwm, motorSpeed);
+      digitalWrite(dir, currentDirection); //Updates direction
+      analogWrite(pwm, motorSpeed); //Sets motor speed
     }
   }
   if( mode == incrementM) {
-    int preDirection = currentDirection;
-    int toggleStatus = readToggle();
-    if (preDirection != currentDirection)
-      idealPos = idealPos + toggleStatus*increment; //NOTE: this won't work because it adds every frame
-    adjustMotorInc();
+    int preDirection = currentDirection; //Sets original direction (to detect switch change)
+    int toggleStatus = readToggle(); //Reads toggle (automatically updates direction)
+    if (preDirection != currentDirection) //checks if switch statement changed
+      idealPos = idealPos + toggleStatus*increment; //Updates idealPos using a default increment
+    adjustMotorInc(); //Adjusts motor speed accordingly
   }
 
 }
@@ -73,11 +80,11 @@ void loop() {
  *          1 if the toggle switch is pressed up.
  */
 int readToggle() {
-  if(digitalRead(toggleUp == HIGH)) {
+  if(digitalRead(toggleUp) == HIGH){
     currentDirection = up;
     return 1;
   }
-  if(digitalRead(toggleDown == HIGH)) {
+  if(digitalRead(toggleDown) == HIGH)) {
     currentDirection = down;
     return -1;
   }
@@ -160,5 +167,40 @@ int checkLimitSwitch() {
     return -1;
   }
   return 0;
+}
+
+void printParameters() {
+  Serial.print("currentPos: ");
+  Serial.print(currentPos);
+  Serial.print("|| idealPos: ");
+  Serial.print(idealPos);
+  Serial.print("|| currentDirection: ");
+  Serial.println(currentDirection);
+  
+}
+
+int setButtons () {
+  buttonFunctions[0] = buttonOne;
+  buttonFunctions[1] = buttonTwo;
+  buttonFunctions[2] = buttonThree;
+  buttonFunctions[3] = buttonFour;
+
+  return 1;
+}
+
+int buttonOne () {
+  return 1;
+}
+
+int buttonTwo () {
+  return 2;
+}
+
+int buttonThree () {
+  return 3;
+}
+
+int buttonFour () {
+  return 4;
 }
 

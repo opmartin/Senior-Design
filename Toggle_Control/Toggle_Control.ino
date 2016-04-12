@@ -5,13 +5,13 @@
 
 #define pwm 3
 #define dir 2
-#define pot A1
+#define pot A0
 
 #define toggleUp 22
 #define toggleDown 23
 
 #define motorSpeed 255
-#define stallSpeed 3
+#define stallSpeed 0
 
 int switchStateUp = 0;
 int switchStateDown = 0;
@@ -50,5 +50,6 @@ void loop() {
     analogWrite(pwm,stallSpeed);
   }
 
+  //Serial.println(analogRead(A0));
 
 }
