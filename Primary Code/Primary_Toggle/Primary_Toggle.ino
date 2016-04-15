@@ -138,6 +138,7 @@ void setup() {
 }
 
 void determineLimits(){
+   calstart=millis();
   digitalWrite(dir, down);
   analogWrite(pwm, motorSpeed);
 
@@ -156,7 +157,10 @@ void determineLimits(){
   }
   delay(20);
   maxPos = readPot();
-  
+  calfinish=millis();
+  caltime=(calfinish-calstart)/1000;
+  Serial.print(caltime)
+  Serial.pringln(" seconds taken to calibrate")
 }
 
 void loop() {
