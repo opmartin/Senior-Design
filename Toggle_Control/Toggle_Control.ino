@@ -10,7 +10,7 @@
 #define toggleUp 22
 #define toggleDown 23
 
-#define motorSpeed 255
+#define motorSpeed 125
 #define stallSpeed 0
 
 int switchStateUp = 0;
@@ -35,21 +35,21 @@ void loop() {
     Serial.println("ERROR: Detected paradoxical button states");
   }
   else if (switchStateUp == HIGH) {
-    Serial.println("UP");
+    //Serial.println("UP");
     digitalWrite(dir,HIGH);
     analogWrite(pwm,motorSpeed);
   }
   else if (switchStateDown == HIGH) {
-    Serial.println("DOWN");
+    //Serial.println("DOWN");
     digitalWrite(dir,LOW);
     analogWrite(pwm,motorSpeed);
   }
   else {
-    Serial.println("NEUTRAL");
+    //Serial.println("NEUTRAL");
     digitalWrite(dir,HIGH);
     analogWrite(pwm,stallSpeed);
   }
 
-  //Serial.println(analogRead(A0));
+  Serial.println(analogRead(A0));
 
 }
